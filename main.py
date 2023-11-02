@@ -3,6 +3,7 @@ import numpy as np
 import shutil
 import matplotlib.pyplot as plt
 import re
+import pandas as pd
 
 
 # Function to check if a string starts with a number
@@ -13,12 +14,15 @@ def starts_with_number(input_string):
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    folder_path = './antenna data type 1 format'
-    file_names = [filename for filename in os.listdir(folder_path)
-                  if os.path.isfile(os.path.join(folder_path, filename))]
+    folder_path = './path/Sim'
 
-    destination_path = './antenna data type 1 format'
-    save_path = './processed'
+    theta90_file_names = [os.path.join(folder_path, filename) for filename in os.listdir(folder_path)
+                          if "Theta90" in filename]
+    phi0_file_names = [filename.replace("Theta90", "Phi0") for filename in theta90_file_names]
+    phi90_file_names = [filename.replace("Theta90", "Phi90") for filename in theta90_file_names]
+
+    theta90 = np.array(pd.read_csv(theta90_file_names[0], header=None))
+    print(theta90)
 
     # for file_name in file_names:
     #     if file_name.endswith('.MSI_'):
@@ -49,41 +53,41 @@ if __name__ == '__main__':
     #     np.savetxt(os.path.join(save_path, 'az', first_name + '.csv'), stacked_az, delimiter=',', header='')
     #     np.savetxt(os.path.join(save_path, 'vt', first_name + '.csv'), stacked_vt, delimiter=',', header='')
 
-    for file_name in file_names:
-        file_path = os.path.join(folder_path, file_name)
-        phi, az_gain, theta, vt_gain = [], [], [], []
-        az, vt = False, False
-        if file_name in ['_TIA-RAKARG_16_863-870_MHZ_8DBI (1).ADF_', '_BN_5_ANTENNA.ADF_', '_TARANA_BN_3GHZ.ADF_',
-                         '_TIA-RAKARG_13_863___870_MHZ_5.8DBI.ADF_', '_TIA-RAKARG_16_863-870_MHZ_8DBI.ADF_',
-                         '_TIA-RAKARG_19_902___930_MHZ_5.0DBI.ADF_', '_TIA-RAKARJ_15_863___870_MHZ_2.8DBI.ADF_']:
-            continue
-        print(file_name)
-        with open(file_path, 'r', encoding='cp1252') as f:
-            for line in f:
-                if starts_with_number(line) and len(az_gain) == 0:
-                    az = True
-                elif not starts_with_number(line):
-                    az, vt = False, False
-                elif starts_with_number(line) and len(az_gain) != 0 and not az:
-                    vt = True
-
-                if az:
-                    line = line.replace('\n', '')
-                    info = re.split(r'[ ,\t]+', line)
-                    info = [s for s in info if s]
-                    angle, amp = info[0], info[1]
-                    phi.append(float(angle))
-                    az_gain.append(float(amp))
-                elif vt:
-                    line = line.replace('\n', '')
-                    info = re.split(r'[ ,\t]+', line)
-                    info = [s for s in info if s]
-                    angle, amp = info[0], info[1]
-                    theta.append(float(angle))
-                    vt_gain.append(float(amp))
-
-        stacked_az = np.column_stack((phi, az_gain))
-        stacked_vt = np.column_stack((theta, vt_gain))
-        first_name = file_name.split('.')[0]
-        np.savetxt(os.path.join(save_path, 'az', first_name + '.csv'), stacked_az, delimiter=',', header='')
-        np.savetxt(os.path.join(save_path, 'vt', first_name + '.csv'), stacked_vt, delimiter=',', header='')
+    # for file_name in file_names:
+    #     file_path = os.path.join(folder_path, file_name)
+    #     phi, az_gain, theta, vt_gain = [], [], [], []
+    #     az, vt = False, False
+    #     if file_name in ['_TIA-RAKARG_16_863-870_MHZ_8DBI (1).ADF_', '_BN_5_ANTENNA.ADF_', '_TARANA_BN_3GHZ.ADF_',
+    #                      '_TIA-RAKARG_13_863___870_MHZ_5.8DBI.ADF_', '_TIA-RAKARG_16_863-870_MHZ_8DBI.ADF_',
+    #                      '_TIA-RAKARG_19_902___930_MHZ_5.0DBI.ADF_', '_TIA-RAKARJ_15_863___870_MHZ_2.8DBI.ADF_']:
+    #         continue
+    #     print(file_name)
+    #     with open(file_path, 'r', encoding='cp1252') as f:
+    #         for line in f:
+    #             if starts_with_number(line) and len(az_gain) == 0:
+    #                 az = True
+    #             elif not starts_with_number(line):
+    #                 az, vt = False, False
+    #             elif starts_with_number(line) and len(az_gain) != 0 and not az:
+    #                 vt = True
+    #
+    #             if az:
+    #                 line = line.replace('\n', '')
+    #                 info = re.split(r'[ ,\t]+', line)
+    #                 info = [s for s in info if s]
+    #                 angle, amp = info[0], info[1]
+    #                 phi.append(float(angle))
+    #                 az_gain.append(float(amp))
+    #             elif vt:
+    #                 line = line.replace('\n', '')
+    #                 info = re.split(r'[ ,\t]+', line)
+    #                 info = [s for s in info if s]
+    #                 angle, amp = info[0], info[1]
+    #                 theta.append(float(angle))
+    #                 vt_gain.append(float(amp))
+    #
+    #     stacked_az = np.column_stack((phi, az_gain))
+    #     stacked_vt = np.column_stack((theta, vt_gain))
+    #     first_name = file_name.split('.')[0]
+    #     np.savetxt(os.path.join(save_path, 'az', first_name + '.csv'), stacked_az, delimiter=',', header='')
+    #     np.savetxt(os.path.join(save_path, 'vt', first_name + '.csv'), stacked_vt, delimiter=',', header='')
