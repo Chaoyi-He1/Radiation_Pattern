@@ -1,9 +1,11 @@
 import os
+from collections import OrderedDict
 import numpy as np
 import shutil
 import matplotlib.pyplot as plt
 import re
 import pandas as pd
+from scipy.interpolate import interp1d
 
 
 # Function to check if a string starts with a number
@@ -12,17 +14,47 @@ def starts_with_number(input_string):
     return re.match(pattern, input_string) is not None
 
 
+def unique(data):
+    data[data == "-0.000"] = "0.000"
+    data_list = [tuple(row) for row in data]
+    unique_data_list = list(OrderedDict.fromkeys(data_list))
+    unique_data = np.array(unique_data_list, dtype=object)
+    return unique_data
+
+
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     folder_path = './path/Sim'
+    target_path = './path/processed'
 
-    theta90_file_names = [os.path.join(folder_path, filename) for filename in os.listdir(folder_path)
-                          if "Theta90" in filename]
+    theta90_file_names = [filename for filename in os.listdir(folder_path) if "Theta90" in filename]
     phi0_file_names = [filename.replace("Theta90", "Phi0") for filename in theta90_file_names]
     phi90_file_names = [filename.replace("Theta90", "Phi90") for filename in theta90_file_names]
 
-    theta90 = np.array(pd.read_csv(theta90_file_names[0], header=None))
-    print(theta90)
+    for (theta90_file, phi0_file) in list(zip(theta90_file_names, phi0_file_names)):
+        theta90_list = unique(np.array(pd.read_csv(os.path.join(folder_path, theta90_file), header=None))[1:])
+        phi0_list = unique(np.array(pd.read_csv(os.path.join(folder_path, phi0_file), header=None))[1:])
+
+        for i in range(max(len(theta90_list), len(phi0_list))):
+            if i < len(theta90_list):
+                theta90_list[i, 0], theta90_list[i, 1] = float(theta90_list[i, 0]), float(
+                    theta90_list[i, 1].split('/')[0])
+            if i < len(phi0_list):
+                phi0_list[i, 0], phi0_list[i, 1] = float(phi0_list[i, 0]), float(phi0_list[i, 1].split('/')[0])
+
+        f = interp1d(theta90_list[:, 0].astype(float), theta90_list[:, 1].astype(float), kind='cubic')
+        theta90_angle = np.linspace(0, 360, 361)
+        theta90_rho = f(theta90_angle)
+        theta90_list = np.column_stack((theta90_angle, theta90_rho))
+
+        f = interp1d(phi0_list[:, 0].astype(float), phi0_list[:, 1].astype(float), kind='cubic')
+        phi0_angle = np.linspace(-180, 180, 361)
+        phi0_rho = f(phi0_angle)
+        phi0_list = np.column_stack((phi0_angle, phi0_rho))
+
+        np.savetxt(os.path.join(target_path, 'az', theta90_file), theta90_list, delimiter=',', header='')
+        np.savetxt(os.path.join(target_path, 'vt', phi0_file), phi0_list, delimiter=',', header='')
+
 
     # for file_name in file_names:
     #     if file_name.endswith('.MSI_'):
