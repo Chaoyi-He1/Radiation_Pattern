@@ -1,10 +1,10 @@
 az_folder = "/data/chaoyi_he/Radiation_Pattern/path/processed/az/";
 el_folder = "/data/chaoyi_he/Radiation_Pattern/path/processed/vt/";
 
-FL_ = 0.01:0.002:0.04;
-W_ = 0.01:0.002:0.04;
-L_ = 0.01:0.002:0.04;
-H_ = 0.01:0.002:0.04;
+FL_ = 0.01:0.005:0.04;
+W_ = 0.01:0.005:0.04;
+L_ = 0.01:0.005:0.04;
+H_ = 0.01:0.005:0.04;
 angleE = 12.2442;
 angleH = 14.4712;
 [FL_grid, W_grid, L_grid, H_grid] = ndgrid(FL_, W_, L_, H_);
