@@ -31,8 +31,6 @@ for count = 1:size(combinations, 1)
     el = -180:1:180;
     patOpt = PatternPlotOptions;
     patOpt.MagnitudeScale = [-15 35];
-    figure;
-    pattern(ant5,10e9,az,el,'patternOptions',patOpt)
     [fieldval, azimuth, elevation] = pattern(ant5,10e9,az,el,'patternOptions',patOpt);
 
     az_index = find(elevation == 0);
