@@ -1,5 +1,3 @@
-# Copyright (c) 2021 Joowon Lim - Carlo Gigli
-
 import torch
 from torch import nn
 from TUNet import TUNet
@@ -8,8 +6,8 @@ import torch.nn.functional as F
 import math
 import numpy as np
 import matplotlib.pyplot as plt
-import constants
-from utils import _complex_multiplication, _complex_scalar_multiplication
+import cfg.constants
+from util.utils import _complex_multiplication, _complex_scalar_multiplication
 
 epsilon0 = 8.85e-12
 mu0 = 4 * math.pi * 1e-7

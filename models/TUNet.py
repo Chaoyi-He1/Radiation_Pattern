@@ -1,5 +1,3 @@
-# modified from # Adapted from https://github.com/jvanvugt/pytorch-unet, MIT License, Copyright (c) 2018 Joris
-
 import torch
 from torch import nn
 import torch.nn.functional as F
