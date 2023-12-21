@@ -24,7 +24,7 @@ def unique(data):
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    folder_path = './path/Sim'
+    folder_path = './path/slot_sim'
     target_path = './path/processed'
 
     theta90_file_names = [filename for filename in os.listdir(folder_path) if "Theta90" in filename]
