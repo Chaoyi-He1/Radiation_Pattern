@@ -4,7 +4,7 @@ import torch
 from Datasets import RI2D_Dataset, WG2D_Dataset
 from torch.optim.lr_scheduler import StepLR
 from torch.utils.tensorboard import SummaryWriter
-from MaxwellNet import MaxwellNet
+from models.MaxwellNet import MaxwellNet
 
 import numpy as np
 import logging
@@ -12,9 +12,9 @@ import argparse
 import os
 import time
 from datetime import timedelta
-import constants
+import cfg.constants
 import json
-from utils import fix_seed, get_spec_with_default, get_field_from_torch, to_tensorboard, save_checkpoint, load_model
+from util.utils import fix_seed, get_spec_with_default, get_field_from_torch, to_tensorboard, save_checkpoint, load_model
 
 def main(directory, is_server, load_latest):
     """
