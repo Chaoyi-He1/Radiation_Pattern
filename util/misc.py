@@ -17,6 +17,12 @@ import torch
 import torch.distributed as dist
 from torch import Tensor
 import numpy as np
+from packaging import version
+
+import torchvision
+if version.parse(torchvision.__version__) < version.parse('0.7'):
+    from torchvision.ops import _new_empty_tensor
+    from torchvision.ops.misc import _output_size
 
 
 class SmoothedValue(object):
@@ -400,3 +406,51 @@ def check_file(file):
         files = glob.glob('./**/' + file, recursive=True)  # find file
         assert len(files), 'File Not Found: %s' % file  # assert file was found
         return files[0]  # return first file if multiple found
+
+
+class NestedTensor(object):
+    def __init__(self, tensors, mask: Optional[Tensor]):
+        self.tensors = tensors
+        self.mask = mask
+
+    def to(self, device):
+        # type: (Device) -> NestedTensor # noqa
+        cast_tensor = self.tensors.to(device)
+        mask = self.mask
+        if mask is not None:
+            assert mask is not None
+            cast_mask = mask.to(device)
+        else:
+            cast_mask = None
+        return NestedTensor(cast_tensor, cast_mask)
+
+    def decompose(self):
+        return self.tensors, self.mask
+
+    def __repr__(self):
+        return str(self.tensors)
+
+
+def _max_by_axis(the_list):
+    # type: (List[List[int]]) -> List[int]
+    maxes = the_list[0]
+    for sublist in the_list[1:]:
+        for index, item in enumerate(sublist):
+            maxes[index] = max(maxes[index], item)
+    return maxes
+
+
+def nested_tensor_from_tensor_list(tensor_list: List[Tensor]):
+    # TODO make this more general
+    max_size = [361, 3]
+    # min_size = tuple(min(s) for s in zip(*[img.shape for img in tensor_list]))
+    batch_shape = [len(tensor_list)] + max_size
+    b, n, d = batch_shape
+    dtype = tensor_list[0].dtype
+    device = tensor_list[0].device
+    tensor = torch.zeros(batch_shape, dtype=dtype, device=device)
+    mask = torch.ones((b, n), dtype=torch.bool, device=device)
+    for data, pad_data, m in zip(tensor_list, tensor, mask):
+        pad_data[:data.shape[0], : data.shape[1]].copy_(data)
+        m[:data.shape[0]] = False
+    return NestedTensor(tensor, mask)
