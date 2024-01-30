@@ -29,7 +29,7 @@ class Pointnet(nn.Module):
                  norm_before: bool = True, 
                  activation: str = 'relu', 
                  weight_init: str = 'uniform', 
-                 ):
+                 ) -> None:
         super().__init__()
         self.max_number_points = max_number_points
         self.input_dim = input_dim
