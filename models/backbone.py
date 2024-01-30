@@ -72,7 +72,7 @@ class Pointnet(nn.Module):
             nn.Linear(128, output_dim),
         )
         self.sqz = nn.Conv1d(
-            in_channels=output_dim, 
+            in_channels=max_number_points, 
             out_channels=1, 
             kernel_size=1,
             stride=1,
