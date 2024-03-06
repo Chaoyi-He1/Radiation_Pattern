@@ -43,13 +43,16 @@ class Pointnet_Dataset(Dataset):
             data = pd.read_csv(self.data_files_path[index], header=None).to_numpy()
         
         # Randomly selecting one point from every 10 points in data
-        indices = [random.randint(i*10, min((i+1)*10 - 1, data.shape[0]-1)) for i in range(data.shape[0] // 10)]
-        data_sampled = data[indices]
+        indices_1 = [random.randint(i*10, min((i+1)*10 - 1, data.shape[0]-1)) for i in range(data.shape[0] // 10)]
+        indices_2 = [random.randint(i*10, min((i+1)*10 - 1, data.shape[0]-1)) for i in range(data.shape[0] // 10)]
+        data_sampled_1 = data[indices_1, :]
+        data_sampled_2 = data[indices_2, :]
         
-        return data_sampled
+        return data_sampled_1, data_sampled_2
     
     def collate_fn(self, batch):
-        data_sampled = list(zip(*batch))
-        data_sampled = torch.tensor(np.array(data_sampled)).float()
-        return data_sampled
+        data_sampled_1, data_sampled_2 = list(zip(*batch))
+        data_sampled_1 = torch.tensor(np.array(data_sampled_1)).float()
+        data_sampled_2 = torch.tensor(np.array(data_sampled_2)).float()
+        return data_sampled_1, data_sampled_2
         
