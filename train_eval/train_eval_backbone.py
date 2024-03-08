@@ -27,5 +27,34 @@ def train_one_epoch(model: torch.nn.Module, criterion: torch.nn.Module,
             output_1 = model(input_1)
             output_2 = model(input_2)
             loss = criterion(output_1, output_2)
-            
+        
+        # reduce losses over all GPUs for logging purposes
+        loss_reduced = reduce_loss(loss)
+        
+        # Backward pass
+        optimizer.zero_grad()
+        if scaler is not None:
+            scaler.scale(loss).backward()
+        else:
+            loss.backward()
+        
+        if max_norm > 0:
+            torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm)
+        
+        if scaler is not None:
+            scaler.step(optimizer)
+            scaler.update()
+        else:
+            optimizer.step()
+        
+        # Update metric logger
+        metric_logger.update(loss=loss_reduced.item())
+        metric_logger.update(lr=optimizer.param_groups[0]["lr"])
+    
+    # gather the stats from all processes
+    metric_logger.synchronize_between_processes()
+    print("Averaged stats:", metric_logger)
+    
+    return {k: meter.global_avg for k, meter in metric_logger.meters.items()}
+        
             
