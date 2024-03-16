@@ -34,10 +34,11 @@ class ContrastiveLoss(nn.Module):
         # Negative similarities: each x1 with all x2s (including the matching one) and all x1s (excluding itself)
         neg_sim_x1_x2 = torch.matmul(x1_norm, x2_norm.T)  # Each x1 with all x2
         neg_sim_x1_x1 = torch.matmul(x1_norm, x1_norm.T)  # Each x1 with all x1
-        # Removing positive self-similarities for x1_x1
-        neg_sim_x1_x1.fill_diagonal_(0)
-        # Removing duplicate positive similarities for x1_x2
-        neg_sim_x1_x2.fill_diagonal_(0)
+        
+        # Create masks to zero out the diagonals for neg_sim_x1_x1 and neg_sim_x1_x2
+        mask = torch.eye(x1.size(0)).bool().to(x1.device)
+        neg_sim_x1_x1.masked_fill_(mask, float('-inf'))  # Use '-inf' to effectively exclude these during softmax
+        neg_sim_x1_x2.masked_fill_(mask, float('-inf'))
         
         # Combine all similarities
         all_similarities = torch.cat((pos_sim.unsqueeze(1), neg_sim_x1_x2, neg_sim_x1_x1), dim=1)
