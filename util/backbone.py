@@ -47,7 +47,7 @@ class ContrastiveLoss(nn.Module):
         softmax_scores = F.softmax(all_similarities, dim=1)
         
         # The contrastive loss is the negative log likelihood of the first distance (positive pair)
-        loss = -torch.log(softmax_scores[:, 0] + 1e-9)  # Adding a small value to prevent log(0)
+        loss = torch.sum(-torch.log(softmax_scores[:, 0] + 1e-9))  # Adding a small value to prevent log(0)
         
         # Calculate the accuracy
         # The accuracy is the number of times the positive pair has the highest similarity
