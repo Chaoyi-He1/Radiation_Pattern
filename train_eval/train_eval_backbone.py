@@ -96,3 +96,46 @@ def evaluate(model: torch.nn.Module, criterion: torch.nn.Module,
     metric_logger.synchronize_between_processes()
     print("Averaged stats:", metric_logger)
     return {k: meter.global_avg for k, meter in metric_logger.meters.items()}
+
+
+# def train_one_epoch(model: torch.nn.Module, data_loader, optimizer, device, epoch, scaler=None, criterion=None):
+#     model.train()
+    
+#     loss_total = []
+#     for input1, input2 in data_loader:
+#         input1, input2 = input1.to(device), input2.to(device) # decice is cuda or cpu
+        
+#         outputs = model(input1, input2)
+#         output_1, output_2 = torch.split(outputs, input.size(0), dim=0)
+            
+#         loss = criterion(output_1, output_2)
+        
+#         optimizer.zero_grad()
+#         loss.backward()
+#         optimizer.step()
+        
+#        loss_total.append(loss.item()) 
+    
+#     loss_ = mean(loss_total)
+#     print(f"Epoch {epoch}, Loss: {loss_}")
+#     return loss_
+
+
+# def evaluate(model: torch.nn.Module, data_loader, device, criterion):
+#     model.eval()
+    
+#     loss_total = []
+#     for input1, input2 in data_loader:
+#         input1, input2 = input1.to(device), input2.to(device)
+        
+#         with torch.no_grad():
+#             outputs = model(input1, input2)
+#             output_1, output_2 = torch.split(outputs, input.size(0), dim=0)
+                
+#             loss = criterion(output_1, output_2)
+        
+#         loss_total.append(loss.item())
+#     loss_ = mean(loss_total)
+#     print(f"Loss: {loss_}")
+#     return loss_
+        
