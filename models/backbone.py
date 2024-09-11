@@ -93,10 +93,10 @@ class Pointnet(nn.Module):
                 if p.dim() > 1:
                     nn.init.normal_(p, mean=0, std=0.01)
     
-    def forward(self, x: NestedTensor) -> Tensor:
+    def forward(self, x: Tensor) -> Tensor:
         '''
-        The input of the backbone is the NestedTensor of point cloud 
-            with data shape (B, 361, 3), mask shape (B, 361)
+        The input of the backbone is the Tensor of point cloud 
+            with data shape (B, N, 3)
         Let N is the number of points in each point cloud 
             where N <= 361 and N is different for each point cloud in B
         First, we put x into the full shape (B, 361, 3) with zero padding.
@@ -104,13 +104,11 @@ class Pointnet(nn.Module):
             mask = 0 means the point is valid; mask = 1 means the point is invalid.
             We generate the mask based on the number of points in each point cloud.
         '''
-        data = x.tensors
-        mask = x.mask
-        output = self.input_transform(data, mask)
+        data = x
+        output = self.input_transform(data)
         output = self.mlp1(output)
         pos_embed = self.pos_embed_feature(output)
         output = self.feature_transform(src=output, 
-                                        mask=mask, 
                                         pos=pos_embed)
         output = self.mlp2(output)
         output = self.sqz(output)
