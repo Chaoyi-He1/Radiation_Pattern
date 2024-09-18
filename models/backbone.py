@@ -58,7 +58,7 @@ class Pointnet(nn.Module):
         self.feature_transform = Transformer_Encoder(
             num_layers=trans_num_layers,
             d_model=64,
-            nhead=trans_num_layers,
+            nhead=4,
             dropout=drop_out_rate,
             drop_path=drop_path_rate,
             activation=activation,
