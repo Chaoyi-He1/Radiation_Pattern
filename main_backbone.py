@@ -78,13 +78,14 @@ def main(args):
     
     # create optimizer
     params = [p for p in model.parameters() if p.requires_grad]
-    optimizer = torch.optim.Adam(params, lr=args.lr)
+    optimizer = torch.optim.AdamW(params, lr=args.lr)
     
     lf = lambda x: ((1 + math.cos(x * math.pi / args.epochs)) / 2) * (1 - args.lrf) + args.lrf
     scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda=lf)
     scheduler.last_epoch = 0
     
     # start training
+    best_loss, best_acc = float('inf'), 0
     for epoch in range(args.epochs):
         print(f'Epoch {epoch}/{args.epochs}')
         
@@ -105,7 +106,7 @@ def main(args):
         tb_writer.add_scalar('val/accuracy', val_acc, epoch)
         
         # save checkpoint
-        if epoch % 10 == 0:
+        if best_loss > val_loss or best_acc < val_acc:
             save_dict = {
                 "model": model.state_dict(),
                 "optimizer": optimizer.state_dict(),
